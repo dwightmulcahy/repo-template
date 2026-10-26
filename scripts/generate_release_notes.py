@@ -11,9 +11,9 @@ from collections import defaultdict
 from pathlib import Path
 
 CONVENTIONAL_COMMIT = re.compile(
-    r"^(?P<type>[a-z][a-z0-9-]*)(?:\\((?P<scope>[^)]+)\\))?(?P<breaking>!)?:\\s+(?P<text>.+)$"
+    r"^(?P<type>[a-z][a-z0-9-]*)(?:\((?P<scope>[^)]+)\))?(?P<breaking>!)?:\s+(?P<text>.+)$"
 )
-SEMVER = re.compile(r"^v?(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$")
+SEMVER = re.compile(r"^v?(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$")
 SECTIONS = {
     "feat": ("✨", "Features"),
     "fix": ("🐛", "Bug fixes"),
