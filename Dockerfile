@@ -11,6 +11,9 @@ WORKDIR /app
 # Files owned by root, process runs as non-root: app cannot modify itself
 COPY --from=build /app/dist/web ./public
 COPY server.mjs ./
+# Static runtime needs node, not npm/corepack or their vulnerable bundled packages.
+# Keep package managers in the build stage only.
+RUN rm -rf /usr/local/lib/node_modules /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack
 USER node
 EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
