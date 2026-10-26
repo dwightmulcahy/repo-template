@@ -30,6 +30,7 @@ Short description.
 > | `DOCKERHUB_USER/DOCKERHUB_REPO` | `dockeruser/myapp` | `README.md` (badges) |
 > | `youruser/yourapp`, `yourapp` | Docker Hub image / app name | `.env.example` |
 > | `/share/Container/app/data` | QNAP data path | `compose.qnap.yaml`, `.env.example` |
+> | `OWNER/REPO` in the security URL | GitHub repository | `SECURITY.md` |
 > | `Copyright (c) 2026 Dwight Mulcahy` | Year / owner if different | `LICENSE` |
 > | `Short description.` | One-line description | `README.md` |
 >
@@ -56,7 +57,7 @@ Short description.
 > - [ ] Settings → Actions → General → Workflow permissions: *Read repository contents* (workflows request `contents: write` only where needed)
 > - [ ] Settings → Rules → New branch ruleset on `main`: require PR, require status checks (`JS syntax check`, `Validate Compose files`, `Build web + offline`, `pytest`, `Docker image + Chromium smoke`), block force pushes
 > - [ ] Settings → Rules → New tag ruleset on `v*`: restrict creation/deletion to admins
-> - [ ] Settings → Code security → enable Dependabot alerts + security updates, secret scanning, push protection
+> - [ ] Settings → Code security → enable private vulnerability reporting, Dependabot alerts + security updates, secret scanning, push protection
 > - [ ] About (gear icon) → description, topics
 >
 > **5. Replace the stub app**
@@ -78,7 +79,12 @@ docker compose up -d --build
 curl http://localhost:8080/health
 ```
 
-QNAP: `docker compose -f compose.qnap.yaml up -d`
+QNAP: `docker compose -f compose.qnap.yaml pull && docker compose -f compose.qnap.yaml up -d`
+
+Both Compose files run with a read-only root filesystem, dropped capabilities,
+`no-new-privileges`, bounded memory/PIDs/shared memory, an init process, a
+graceful shutdown window, and rotated JSON logs. Ensure `QNAP_DATA_DIR` is
+writable by the container user before deployment.
 
 Offline edition: download `*-offline.zip` from [Releases](https://github.com/OWNER/REPO/releases) and verify with `sha256sum -c *.sha256`.
 
@@ -92,11 +98,23 @@ pip install -r requirements-dev.txt && pytest
 npx playwright install chromium && BASE_URL=http://localhost:8080 npm run test:smoke
 ```
 
+CI pins every external GitHub Action to an immutable commit SHA, pins the
+Docker base image by version and multi-architecture digest, and rejects fixable
+high or critical image vulnerabilities with Trivy. Dependabot keeps those pins
+reviewable and current.
+
 ## Releasing
 
 1. Merge to `main`.
 2. `git tag v1.2.3 && git push origin v1.2.3`
-3. The Release workflow verifies the tag is on `main`, reruns CI, pushes `1.2.3` + `latest` (amd64/arm64) to Docker Hub, and publishes the offline ZIP + SHA-256 to a GitHub Release. Tags with `-` (e.g. `v1.3.0-rc.1`) are prereleases and skip `latest`.
+3. The Release workflow verifies the tag is on `main`, reruns CI, and publishes
+   the multi-architecture image, offline ZIP, SHA-256 checksum, and grouped
+   Conventional Commit release notes.
+
+For the newest stable `v1.2.3` release, Docker receives `1.2.3`, `1.2`, `1`,
+and `latest`. Older releases publish only their exact version, so rerunning or
+backfilling an old tag cannot move a rolling tag backward. Tags containing `-`
+(for example `v1.3.0-rc.1`) are prereleases and publish only the exact tag.
 
 Required settings: repo variables `DOCKERHUB_USERNAME`, `DOCKERHUB_REPO` (e.g. `user/app`); secret `DOCKERHUB_TOKEN`.
 
