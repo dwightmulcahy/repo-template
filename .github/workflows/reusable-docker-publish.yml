@@ -15,6 +15,11 @@ on:
         required: false
         default: .
         type: string
+      build_args:
+        description: Newline-separated Docker build arguments
+        required: false
+        default: ''
+        type: string
       tag:
         required: true
         type: string
@@ -61,6 +66,7 @@ jobs:
           file: ${{ inputs.dockerfile }}
           platforms: linux/amd64,linux/arm64
           push: true
+          build-args: ${{ inputs.build_args }}
           tags: ${{ steps.metadata.outputs.tags }}
           labels: ${{ steps.metadata.outputs.labels }}
           provenance: mode=max
