@@ -24,8 +24,24 @@ on:
         required: true
         type: string
       is_latest:
-        description: Publish floating M, M.m and latest tags only for newest stable release
-        required: true
+        description: Legacy switch for all floating tags; prefer independent publish flags
+        required: false
+        default: false
+        type: boolean
+      publish_major:
+        description: Publish major alias only when this is the newest release in its major line
+        required: false
+        default: false
+        type: boolean
+      publish_minor:
+        description: Publish minor alias only when this is the newest release in its minor line
+        required: false
+        default: false
+        type: boolean
+      publish_latest:
+        description: Publish latest alias only when this is the newest stable release overall
+        required: false
+        default: false
         type: boolean
     secrets:
       DOCKERHUB_USERNAME:
@@ -56,9 +72,9 @@ jobs:
           flavor: latest=false
           tags: |
             type=semver,pattern={{version}},value=${{ inputs.tag }}
-            type=semver,pattern={{major}}.{{minor}},value=${{ inputs.tag }},enable=${{ inputs.is_latest }}
-            type=semver,pattern={{major}},value=${{ inputs.tag }},enable=${{ inputs.is_latest }}
-            type=raw,value=latest,enable=${{ inputs.is_latest }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ inputs.tag }},enable=${{ inputs.is_latest || inputs.publish_minor }}
+            type=semver,pattern={{major}},value=${{ inputs.tag }},enable=${{ inputs.is_latest || inputs.publish_major }}
+            type=raw,value=latest,enable=${{ inputs.is_latest || inputs.publish_latest }}
       - uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7
         id: build
         with:
