@@ -14,6 +14,10 @@ on:
         type: string
         required: false
         default: 'npm test'
+      working-directory:
+        type: string
+        required: false
+        default: .
       runner:
         type: string
         required: false
@@ -29,11 +33,13 @@ jobs:
         with:
           node-version: ${{ inputs.node-version }}
       - name: Install dependencies
+        working-directory: ${{ inputs.working-directory }}
         shell: bash
         env:
           INSTALL_COMMAND: ${{ inputs.install-command }}
         run: bash -euo pipefail -c "$INSTALL_COMMAND"
       - name: Run project checks
+        working-directory: ${{ inputs.working-directory }}
         shell: bash
         env:
           CHECK_COMMAND: ${{ inputs.check-command }}
