@@ -24,6 +24,8 @@ jobs:
       version: ${{ steps.meta.outputs.version }}
       prerelease: ${{ steps.meta.outputs.prerelease }}
       is_latest: ${{ steps.meta.outputs.is_latest }}
+      publish_major: ${{ steps.meta.outputs.publish_major }}
+      publish_minor: ${{ steps.meta.outputs.publish_minor }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -47,6 +49,21 @@ jobs:
               sort -V |
               tail -n 1
           })"
+          stable_versions="$(git tag --list | sed -nE 's/^v?([0-9]+\.[0-9]+\.[0-9]+)$/\1/p')"
+          major="${version%%.*}"
+          minor="${version%.*}"
+          highest_major="$(printf '%s\n' "$stable_versions" | awk -F. -v m="$major" '$1==m' | sort -V | tail -n 1)"
+          highest_minor="$(printf '%s\n' "$stable_versions" | awk -F. -v m="$major" -v n="${minor#*.}" '$1==m && $2==n' | sort -V | tail -n 1)"
+          if [[ "$pre" == "false" && "$version" == "$highest_major" ]]; then
+            echo "publish_major=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "publish_major=false" >> "$GITHUB_OUTPUT"
+          fi
+          if [[ "$pre" == "false" && "$version" == "$highest_minor" ]]; then
+            echo "publish_minor=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "publish_minor=false" >> "$GITHUB_OUTPUT"
+          fi
           if [[ "$pre" == "false" && "$version" == "$latest_version" ]]; then
             echo "is_latest=true" >> "$GITHUB_OUTPUT"
           else
@@ -77,8 +94,8 @@ jobs:
           flavor: latest=false
           tags: |
             type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}},enable=${{ needs.verify.outputs.is_latest == 'true' }}
-            type=semver,pattern={{major}},enable=${{ needs.verify.outputs.is_latest == 'true' }}
+            type=semver,pattern={{major}}.{{minor}},enable=${{ needs.verify.outputs.publish_minor == 'true' }}
+            type=semver,pattern={{major}},enable=${{ needs.verify.outputs.publish_major == 'true' }}
             type=raw,value=latest,enable=${{ needs.verify.outputs.is_latest == 'true' }}
       - uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7
         with:
