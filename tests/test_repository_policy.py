@@ -41,5 +41,6 @@ def test_release_publishes_protected_semver_aliases():
     assert "type=semver,pattern={{major}}.{{minor}}" in workflow
     assert "type=semver,pattern={{major}}" in workflow
     assert "type=raw,value=latest" in workflow
-    assert workflow.count("needs.verify.outputs.is_latest == 'true'") == 3
+    for alias in ("publish_major", "publish_minor", "is_latest"):
+        assert workflow.count(f"needs.verify.outputs.{alias} == 'true'") == 1
     assert "scripts/generate_release_notes.py" in workflow
