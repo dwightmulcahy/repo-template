@@ -28,7 +28,7 @@ Short description.
 > | `project-name` | npm package name | `package.json` |
 > | `OWNER/REPO` | `githubuser/myapp` | `README.md` (badges, links) |
 > | `DOCKERHUB_USER/DOCKERHUB_REPO` | `dockeruser/myapp` | `README.md` (badges) |
-> | `youruser/yourapp`, `yourapp` | Docker Hub image / app name | `.env.example` |
+> | `youruser/yourapp`, `yourapp` | Container image / app name | `.env.example` |
 > | `/share/Container/app/data` | QNAP data path | `compose.qnap.yaml`, `.env.example` |
 > | `OWNER/REPO` in the security URL | GitHub repository | `SECURITY.md` |
 > | `Copyright (c) 2026 Dwight Mulcahy` | Year / owner if different | `LICENSE` |
@@ -39,7 +39,9 @@ Short description.
 >   --exclude-dir={node_modules,.git} .
 > ```
 >
-> **3. Actions secrets & variables** (not copied by templates — set per repo)
+> **3. Image registry** (optional; not copied by templates — set per repo)
+>
+> With nothing set, releases publish to GitHub Container Registry as `ghcr.io/<owner>/<repo>` using the built-in `GITHUB_TOKEN`. To publish to Docker Hub instead, set both of these:
 >
 > | Name | Type | Value |
 > |---|---|---|
@@ -52,6 +54,8 @@ Short description.
 > gh variable set DOCKERHUB_REPO     --body dockeruser/myapp
 > gh secret   set DOCKERHUB_TOKEN    # prompts for value
 > ```
+>
+> On GHCR, the first published image is a package you can find under your profile → Packages. Check its visibility there and make it public if hosts should pull it without logging in.
 >
 > **4. Repo settings** (not copied by templates)
 > - [ ] Settings → Actions → General → Workflow permissions: *Read repository contents* (workflows request `contents: write` only where needed)
@@ -69,7 +73,7 @@ Short description.
 >
 > **6. Verify**
 > - [ ] Push to `main` → CI green
-> - [ ] `git tag v0.1.0 && git push origin v0.1.0` → image on Docker Hub, GitHub Release with ZIP + `.sha256`
+> - [ ] `git tag v0.1.0 && git push origin v0.1.0` → image on GHCR (or Docker Hub if configured), GitHub Release with ZIP + `.sha256`
 
 ## Quick start
 
@@ -116,7 +120,7 @@ and `latest`. Older releases publish only their exact version, so rerunning or
 backfilling an old tag cannot move a rolling tag backward. Tags containing `-`
 (for example `v1.3.0-rc.1`) are prereleases and publish only the exact tag.
 
-Required settings: repo variables `DOCKERHUB_USERNAME`, `DOCKERHUB_REPO` (e.g. `user/app`); secret `DOCKERHUB_TOKEN`.
+Registry: Docker Hub when the `DOCKERHUB_USERNAME` variable and `DOCKERHUB_TOKEN` secret are both set (optional `DOCKERHUB_REPO`, e.g. `user/app`); otherwise `ghcr.io/<owner>/<repo>`, with no setup. The release run shows a notice when it falls back to GHCR.
 
 ## License
 
