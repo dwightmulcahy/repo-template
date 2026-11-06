@@ -66,6 +66,7 @@ Short description.
 >
 > **5. Replace the stub app**
 > - [ ] `src/`, `server.mjs`, `scripts/build.mjs` — your app; keep `npm run build:web`, `npm run build:offline`, and a `GET /health` → 200
+> - [ ] Keep the version label (`src/about.mjs`, the `build-info` script tag in `index.html`, `GET /api/about`) or delete all three
 > - [ ] `Dockerfile`, `.dockerignore` — adjust `COPY` lines to your sources
 > - [ ] `tests/` (pytest) and `tests/smoke/` (Playwright) — real tests
 > - [ ] `package.json` `engines`, `NODE_VERSION` / `PYTHON_VERSION` in `.github/workflows/*.yml`
@@ -91,6 +92,20 @@ graceful shutdown window, and rotated JSON logs. Ensure `QNAP_DATA_DIR` is
 writable by the container user before deployment.
 
 Offline edition: download `*-offline.zip` from [Releases](https://github.com/OWNER/REPO/releases) and verify with `sha256sum -c *.sha256`.
+
+## Version label and About dialog
+
+The page header shows the build version (`v1.4.2` for releases, `dev <commit>` for local builds). Clicking it opens an About dialog with version, commit, edition, build time, server start time, links to the release notes and issue tracker, and **Copy details** for bug reports.
+
+`scripts/build.mjs` writes this to `build.json` and embeds it in `index.html` (so it also works without a server):
+
+| Field | Release build | Local `docker compose up --build` | `npm run build:*` |
+|---|---|---|---|
+| version | tag without `v` (`APP_VERSION`) | `dev` | `APP_VERSION` or `dev` |
+| commit | `GIT_SHA` | read from `.git` (compose passes it as the `git` build context) | `GIT_SHA`, or `GIT_DIR=.git` |
+| repository | `REPOSITORY` (`owner/repo`) | `.git` remote `origin` (GitHub only) | `GITHUB_REPOSITORY`, or `GIT_DIR=.git` |
+
+The server adds its start time at `GET /api/about`. Nothing in either reveals dependency versions.
 
 ## Development
 

@@ -1,9 +1,18 @@
 # syntax=docker/dockerfile:1
+# Empty unless compose.yaml supplies the checkout's .git as the "git" build context
+FROM scratch AS git
+
 FROM node:26.13.0-alpine3.24@sha256:c6ad9e9c1d80f6eb607c26b4b0a132ff7a2344fad1c78ea3baa2a7d4c8de6d94 AS build
+# Set by the release workflow (tag without "v", commit, owner/repo); empty = "dev" build
+ARG APP_VERSION=
+ARG GIT_SHA=
+ARG REPOSITORY=
 WORKDIR /app
 COPY scripts ./scripts
 COPY src ./src
-RUN node scripts/build.mjs web
+RUN --mount=type=bind,from=git,target=/git \
+    APP_VERSION="${APP_VERSION}" GIT_SHA="${GIT_SHA}" REPOSITORY="${REPOSITORY}" GIT_DIR=/git \
+    node scripts/build.mjs web
 
 FROM node:26.13.0-alpine3.24@sha256:c6ad9e9c1d80f6eb607c26b4b0a132ff7a2344fad1c78ea3baa2a7d4c8de6d94
 ENV NODE_ENV=production PORT=8080
