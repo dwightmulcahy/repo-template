@@ -1,0 +1,30 @@
+:root { color-scheme: light dark; --ink: #1d232a; --muted: #5b6672; --line: #d4dae0; --panel: #ffffff; --bg: #f4f6f8; --accent: #2f5d8a; }
+@media (prefers-color-scheme: dark) {
+  :root { --ink: #e8ecf0; --muted: #a3adb8; --line: #3a434d; --panel: #1b2128; --bg: #12171c; --accent: #7fb0e0; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: var(--ink); background: var(--bg); }
+.topbar { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 1px solid var(--line); background: var(--panel); }
+.topbar h1 { margin: 0; font-size: 20px; }
+main { padding: 16px; }
+
+/* Version label + About dialog */
+.build-version {
+  font: inherit; font-size: 13px; font-weight: 500; line-height: 1; color: var(--muted); background: transparent; cursor: pointer;
+  border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px; min-height: 26px;
+}
+.build-version:hover, .build-version:focus-visible { color: var(--ink); background: var(--bg); }
+.build-version[hidden] { display: none; }
+dialog.about { width: min(480px, calc(100vw - 32px)); border: 1px solid var(--line); border-radius: 10px; padding: 20px; color: var(--ink); background: var(--panel); }
+dialog.about::backdrop { background: rgb(0 0 0 / .45); }
+dialog.about h2 { margin: 0 0 12px; font-size: 20px; }
+.about-kv { display: grid; grid-template-columns: 130px 1fr; gap: 6px 12px; margin: 0 0 12px; font-size: 14px; }
+.about-kv dt { color: var(--muted); }
+.about-kv dd { margin: 0; overflow-wrap: anywhere; }
+.about-links, .about-status { font-size: 14px; margin: 0 0 12px; }
+.about-status:empty { display: none; }
+dialog.about a { color: var(--accent); }
+.about-actions { display: flex; justify-content: end; gap: 8px; }
+.about-actions button { font: inherit; font-size: 14px; padding: 6px 14px; border-radius: 6px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); cursor: pointer; }
+.about-actions button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+@media (prefers-color-scheme: dark) { .about-actions button.primary { color: #0b1015; } }

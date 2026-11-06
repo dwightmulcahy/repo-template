@@ -7,11 +7,17 @@ const ROOT = path.resolve(process.env.PUBLIC_DIR ?? path.join(import.meta.dirnam
 const TYPES = { '.html': 'text/html; charset=utf-8', '.mjs': 'text/javascript', '.js': 'text/javascript',
   '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png' };
 
+const STARTED_AT = new Date().toISOString();
+
 const server = http.createServer(async (req, res) => {
   const { pathname } = new URL(req.url, 'http://x');
   if (pathname === '/health') {
     res.writeHead(200, { 'content-type': 'application/json' });
     return res.end('{"status":"ok"}');
+  }
+  if (pathname === '/api/about') { // server start time for the About dialog (no dependency versions)
+    res.writeHead(200, { 'content-type': 'application/json', 'cache-control': 'no-store' });
+    return res.end(JSON.stringify({ started_at: STARTED_AT }));
   }
   const file = path.join(ROOT, path.normalize(pathname === '/' ? '/index.html' : pathname));
   if (!file.startsWith(ROOT + path.sep)) { res.writeHead(403); return res.end(); }

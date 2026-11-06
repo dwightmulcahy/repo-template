@@ -99,6 +99,13 @@ jobs:
           tags: ${{ env.IMAGE }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+      - name: Local compose build reads the commit from .git
+        env:
+          IMAGE: app:compose-check
+        run: |
+          docker compose -f compose.yaml build
+          docker run --rm --entrypoint cat "$IMAGE" /app/public/build.json | tee build.json
+          python3 -c "import json,sys; b=json.load(open('build.json')); assert (b['version'], b['commit'], b['repository']) == ('dev', sys.argv[1], 'https://github.com/${{ github.repository }}'), b" "$(git rev-parse --short=7 HEAD)"
       - name: Start hardened container
         run: |
           docker run -d --name app -p ${PORT}:8080 \

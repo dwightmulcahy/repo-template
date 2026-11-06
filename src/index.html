@@ -4,9 +4,18 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Project Name</title>
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./app.css">
 </head>
 <body>
-  <h1 id="title">Project Name</h1>
+  <header class="topbar">
+    <h1 id="title">Project Name</h1>
+    <!-- Version label: click for the About dialog (src/about.mjs) -->
+    <button type="button" class="build-version" id="buildVersion" hidden></button>
+  </header>
+  <main id="main"></main>
+  <!-- Filled in by scripts/build.mjs -->
+  <script type="application/json" id="build-info">{}</script>
   <script type="module" src="./app.mjs"></script>
 </body>
 </html>
