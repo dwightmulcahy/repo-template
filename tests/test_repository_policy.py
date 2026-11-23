@@ -54,3 +54,11 @@ def test_workflows_do_not_set_info_zip_option_env_vars():
     pattern = re.compile(r"^\s*(ZIP|ZIPOPT|UNZIP|UNZIPOPT)\s*:", re.M)
     for wf in (ROOT / ".github").rglob("*.yml"):
         assert not pattern.search(wf.read_text(encoding="utf-8")), f"{wf}: rename the env var"
+
+
+def test_agent_rules_keep_the_git_workflow():
+    rules = (ROOT / "CLAUDE.md").read_text(encoding="utf-8")
+    assert "## Git workflow" in rules
+    for rule in ("One PR per change", "Merge order", "Conventional Commits",
+                 "No direct commits to the default branch"):
+        assert rule in rules, f"CLAUDE.md lost the rule: {rule}"

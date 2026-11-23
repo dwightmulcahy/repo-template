@@ -32,7 +32,7 @@ Short description.
 > | `/share/Container/app/data` | QNAP data path | `compose.qnap.yaml`, `.env.example` |
 > | `OWNER/REPO` in the security URL | GitHub repository | `SECURITY.md` |
 > | `Copyright (c) 2026 Dwight Mulcahy` | Year / owner if different | `LICENSE` |
-> | `Short description.` | One-line description | `README.md` |
+> | `Short description.` | One-line description | `README.md`, `CLAUDE.md` |
 >
 > ```bash
 > grep -rnE 'PROJECT_NAME|Project Name|project-name|OWNER/REPO|DOCKERHUB_(USER|REPO)|youruser|yourapp' \
@@ -72,8 +72,11 @@ Short description.
 > - [ ] `package.json` `engines`, `NODE_VERSION` / `PYTHON_VERSION` in `.github/workflows/*.yml`
 > - [ ] Remove `.github/dependabot.yml` entries for ecosystems you don't use
 >
+> **5b. Agent rules**
+> - [ ] `CLAUDE.md` — add the project's commands and gotchas; keep the **Git workflow** section (PR per change, merge after green CI, Conventional Commits, no direct commits to `main`)
+>
 > **6. Verify**
-> - [ ] Push to `main` → CI green
+> - [ ] Open a PR → CI green → merge to `main`
 > - [ ] `git tag v0.1.0 && git push origin v0.1.0` → image on GHCR (or Docker Hub if configured), GitHub Release with ZIP + `.sha256`
 
 ## Quick start
